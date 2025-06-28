@@ -1,5 +1,7 @@
 import { Button } from "@/components/ui/button";
+import { createAdminClient } from "@/lib/appwrite";
 export default function Home() {
+  console.log(createAdminClient);
   return (
     <div>
       <Button variant="primary">Ok</Button>
