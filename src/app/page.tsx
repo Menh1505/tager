@@ -1,17 +1,24 @@
+"use client";
+
 import { Button } from "@/components/ui/button";
-import { createAdminClient } from "@/lib/appwrite";
+import { useCurrent } from "@/features/auth/api/use-current";
+import { useLogout } from "@/features/auth/api/use-logout";
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 export default function Home() {
-  console.log(createAdminClient);
+  const router = useRouter();
+  const { data, isLoading } = useCurrent();
+  const { mutate } = useLogout();
+  useEffect(() => {
+    if (!data && !isLoading) {
+      router.push("/sign-in");
+    }
+  }, [data, isLoading, router]);
+
   return (
     <div>
-      <Button variant="primary">Ok</Button>
-      <Button variant="destructive">Ok</Button>
-      <Button variant="ghost">Ok</Button>
-      <Button variant="link">Ok</Button>
-      <Button variant="muted">Ok</Button>
-      <Button variant="outline">Ok</Button>
-      <Button variant="secondary">Ok</Button>
-      <Button variant="teritary">Ok</Button>
+      Home
+      <Button onClick={() => mutate()}>Logout</Button>
     </div>
   );
 }
