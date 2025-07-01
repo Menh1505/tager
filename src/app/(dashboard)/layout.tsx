@@ -1,3 +1,4 @@
+import Chat from "@/components/chat";
 import { Navbar } from "@/components/navbar";
 import { Sidebar } from "@/components/sidebar";
 import { CreateWorkspaceModal } from "@/features/workspaces/components/create-workspace-modal";
@@ -21,6 +22,7 @@ const DashboardLayout = ({ children }: DashBoardLayoutProps) => {
           </div>
         </div>
       </div>
+      <Chat />
     </div>
   );
 };

@@ -43,6 +43,7 @@ export const MemberList = () => {
       }
     );
   };
+
   return (
     <Card className="w-full h-full border-none shadow-none">
       <ConfirmDialog />
