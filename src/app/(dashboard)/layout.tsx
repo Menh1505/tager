@@ -1,13 +1,17 @@
+"use client";
 import Chat from "@/components/chat";
 import { Navbar } from "@/components/navbar";
 import { Sidebar } from "@/components/sidebar";
 import { CreateWorkspaceModal } from "@/features/workspaces/components/create-workspace-modal";
+import { useParams } from "next/navigation";
 
 interface DashBoardLayoutProps {
   children: React.ReactNode;
 }
 
 const DashboardLayout = ({ children }: DashBoardLayoutProps) => {
+  const params = useParams();
+  const workspaceId = params.workspaceId as string;
   return (
     <div className="min-h-screen">
       <CreateWorkspaceModal />
@@ -22,7 +26,7 @@ const DashboardLayout = ({ children }: DashBoardLayoutProps) => {
           </div>
         </div>
       </div>
-      <Chat />
+      <Chat workspaceId={workspaceId} />
     </div>
   );
 };
