@@ -7,17 +7,16 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useTasks } from "../hooks/use-tasks";
-import { useWorkspaceId } from "@/features/workspaces/hooks/use-workspace-id";
 import { useCurrent } from "@/features/auth/api/use-current";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 interface CreateTaskModalProps {
   isOpen: boolean;
   onClose: () => void;
+  workspaceId: string;
 }
 
-export const CreateTaskModal = ({ isOpen, onClose }: CreateTaskModalProps) => {
-  const workspaceId = useWorkspaceId();
+export const CreateTaskModal = ({ isOpen, onClose, workspaceId }: CreateTaskModalProps) => {
   const { data: currentUser } = useCurrent();
   const { addTask } = useTasks(workspaceId);
 

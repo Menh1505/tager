@@ -16,7 +16,7 @@ export interface Task {
 export const tasks: Task[] = [
   {
     id: uuidv4(),
-    workspaceId: "workspace-1",
+    workspaceId: "686a30cb001c67070a32",
     title: "Thiết kế UI dashboard",
     description: "Tạo mockup và thiết kế UI cho trang dashboard",
     status: "completed",
@@ -27,7 +27,7 @@ export const tasks: Task[] = [
   },
   {
     id: uuidv4(),
-    workspaceId: "workspace-1",
+    workspaceId: "686a30cb001c67070a32",
     title: "Phát triển tính năng authentication",
     description: "Xây dựng API và UI cho đăng nhập/đăng ký",
     status: "in-progress",
@@ -38,7 +38,7 @@ export const tasks: Task[] = [
   },
   {
     id: uuidv4(),
-    workspaceId: "workspace-2",
+    workspaceId: "686a30cb001c67070a32",
     title: "Viết tài liệu API",
     description: "Tạo tài liệu cho API endpoints",
     status: "todo",

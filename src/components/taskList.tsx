@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useTasks } from "@/hooks/use-tasks";
-import { useWorkspaceId } from "@/features/workspaces/hooks/use-workspace-id";
+import { useWorkspaceId } from "@/hooks/use-workspace-id";
 import { Button } from "@/components/ui/button";
 import { PlusIcon, SearchIcon } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
@@ -18,6 +18,9 @@ export const TaskList = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [statusFilter, setStatusFilter] = useState<Task["status"] | "all">("all");
+
+  console.log("Current workspaceId:", workspaceId);
+  console.log("Tasks loaded:", tasks.length);
 
   // Lọc tasks theo search và status
   const filteredTasks = tasks.filter((task) => {
@@ -72,7 +75,7 @@ export const TaskList = () => {
         </Card>
       )}
 
-      <CreateTaskModal isOpen={isCreateModalOpen} onClose={() => setIsCreateModalOpen(false)} />
+      <CreateTaskModal workspaceId={workspaceId} isOpen={isCreateModalOpen} onClose={() => setIsCreateModalOpen(false)} />
     </div>
   );
 };
