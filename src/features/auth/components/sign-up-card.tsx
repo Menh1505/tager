@@ -110,6 +110,11 @@ export const SignUpCard = () => {
           <span className="text-blue-700">&nbsp;Sign In</span>
         </Link>
       </div>
+      <div className="p-7 flex items-center justify-center">
+        <Link href="/forgot-password">
+          <span className="text-blue-700">&nbsp;Forgot Password</span>
+        </Link>
+      </div>
     </Card>
   );
 };
