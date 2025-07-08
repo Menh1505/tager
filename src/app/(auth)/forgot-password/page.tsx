@@ -30,8 +30,8 @@ function ForgotPasswordPage() {
       }
 
       setSuccess(true);
-    } catch (err: any) {
-      setError(err.message || "Failed to send reset email");
+    } catch (err) {
+      console.log(err);
     } finally {
       setIsLoading(false);
     }

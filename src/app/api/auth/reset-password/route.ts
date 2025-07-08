@@ -17,9 +17,7 @@ export async function POST(request: Request) {
     await account.updateRecovery(userId, secret, password);
 
     return NextResponse.json({ success: true });
-  } catch (error: any) {
+  } catch (error) {
     console.error("Reset password error:", error);
-
-    return NextResponse.json({ message: error.message || "Failed to reset password" }, { status: 500 });
   }
 }

@@ -20,7 +20,7 @@ export async function POST(request: Request) {
     await account.createRecovery(email, url);
 
     return NextResponse.json({ success: true });
-  } catch (error: any) {
+  } catch (error) {
     console.error("Forgot password error:", error);
 
     // Don't reveal if the user exists or not for security reasons

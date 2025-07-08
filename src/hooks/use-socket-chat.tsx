@@ -10,7 +10,7 @@ interface UseSocketChatProps {
 
 export const useSocketChat = ({ workspaceId }: UseSocketChatProps) => {
   const { data: user } = useCurrent();
-  const [messages, setMessages] = useState<any[]>([]);
+  const [messages, setMessages] = useState<string[]>([]);
 
   useEffect(() => {
     // Khởi tạo Socket.IO server thông qua API route

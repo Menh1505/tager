@@ -52,8 +52,8 @@ function ResetPasswordPage() {
       }
 
       setSuccess(true);
-    } catch (err: any) {
-      setError(err.message || "Failed to reset password");
+    } catch (err) {
+      console.log(err);
     } finally {
       setIsLoading(false);
     }

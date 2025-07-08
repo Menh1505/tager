@@ -3,14 +3,7 @@ import { JoinWorkspaceForm } from "@/features/workspaces/components/join-workspa
 import { getWorkspaceInfo } from "@/features/workspaces/queries";
 import { redirect } from "next/navigation";
 
-interface WorkspaceIdJoinPageProps {
-  params: {
-    workspaceId: string;
-    inviteCode: string;
-  };
-}
-
-const WorkspaceIdJoinPage = async ({ params }: WorkspaceIdJoinPageProps) => {
+const WorkspaceIdJoinPage = async ({ params }: { params: { workspaceId: string; inviteCode: string } }) => {
   const user = await getCurrent();
   if (!user) redirect("/sign-in");
 
