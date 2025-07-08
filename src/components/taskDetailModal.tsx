@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { Task, users } from "@/components/taskList";
 import { ResponsiveModal } from "@/components/responsive-modal";
 import { Button } from "@/components/ui/button";
@@ -11,7 +11,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { format } from "date-fns";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { X, PlusCircle, Calendar, User } from "lucide-react";
-import { toast } from "sonner";
 
 interface TaskDetailModalProps {
   isOpen: boolean;
@@ -37,53 +36,6 @@ export const TaskDetailModal = ({ isOpen, onClose, task, onUpdate, onAddMember, 
   // Lọc users đã được gán và chưa được gán
   const assignedUsers = users.filter((user) => task.assignees.includes(user.id));
   const unassignedUsers = users.filter((user) => !task.assignees.includes(user.id));
-  const fileInputRef = useRef<HTMLInputElement | null>(null);
-  const [fileExists, setFileExists] = useState(false);
-
-  // Kiểm tra xem file đã tồn tại chưa
-  useEffect(() => {
-    fetch(`/api/upload?taskId=${task.id}`, { method: "HEAD" }).then((res) => {
-      setFileExists(res.status === 200);
-    });
-  }, [task.id]);
-
-  const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    const formData = new FormData();
-    formData.append("file", file);
-    formData.append("taskId", task.id);
-
-    const res = await fetch("/api/upload", {
-      method: "POST",
-      body: formData,
-    });
-
-    if (res.ok) {
-      toast.success("Tải file lên thành công");
-      setFileExists(true);
-    } else {
-      toast.error("Lỗi khi tải file");
-    }
-  };
-
-  const handleDownload = () => {
-    window.open(`/api/upload?taskId=${task.id}`, "_blank");
-  };
-
-  const handleDelete = async () => {
-    const res = await fetch(`/api/upload?taskId=${task.id}`, {
-      method: "DELETE",
-    });
-
-    if (res.ok) {
-      toast.success("Xóa file thành công");
-      setFileExists(false);
-    } else {
-      toast.error("Xóa file thất bại");
-    }
-  };
 
   // Xử lý cập nhật task
   const handleUpdate = () => {
@@ -201,29 +153,6 @@ export const TaskDetailModal = ({ isOpen, onClose, task, onUpdate, onAddMember, 
                 </div>
               )}
             </div>
-          </div>
-
-          <div className="space-y-2 border-t pt-4">
-            <Label>Tệp đính kèm</Label>
-            {!fileExists && (
-              <>
-                <input ref={fileInputRef} type="file" hidden onChange={handleUpload} />
-                <Button variant="outline" onClick={() => fileInputRef.current?.click()}>
-                  Tải file lên
-                </Button>
-              </>
-            )}
-
-            {fileExists && (
-              <div className="space-x-2">
-                <Button variant="outline" onClick={handleDownload}>
-                  Tải xuống file
-                </Button>
-                <Button variant="destructive" onClick={handleDelete}>
-                  Xóa file
-                </Button>
-              </div>
-            )}
           </div>
 
           <div className="flex justify-end space-x-2 pt-4">

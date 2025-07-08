@@ -32,7 +32,11 @@ export const users = [
   { id: "user-3", name: "Lê Văn C", email: "c@example.com", role: "MEMBER" },
 ];
 
-export const TaskList = () => {
+export interface TaskListProps {
+  onSelectTask?: (taskId: string) => void;
+}
+
+export const TaskList = ({ onSelectTask }: TaskListProps) => {
   const router = useRouter();
   const workspaceId = useWorkspaceId();
   const [searchQuery, setSearchQuery] = useState("");
@@ -201,6 +205,7 @@ export const TaskList = () => {
               onUpdate={updateTask}
               onAddMember={addMemberToTask}
               onRemoveMember={removeMemberFromTask}
+              onSelect={onSelectTask}
             />
           ))}
         </div>

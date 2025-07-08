@@ -18,9 +18,10 @@ interface TaskItemProps {
   onUpdate: (taskId: string, updatedData: Partial<Task>) => void;
   onAddMember: (taskId: string, userId: string) => void;
   onRemoveMember: (taskId: string, userId: string) => void;
+  onSelect?: (taskId: string) => void; // Add this prop
 }
 
-export const TaskItem = ({ task, onDelete, onUpdate, onAddMember, onRemoveMember }: TaskItemProps) => {
+export const TaskItem = ({ task, onDelete, onUpdate, onAddMember, onRemoveMember, onSelect }: TaskItemProps) => {
   const [isDetailOpen, setIsDetailOpen] = useState(false);
   const [ConfirmDialog, confirm] = useConfirm("Xóa task", `Bạn có chắc chắn muốn xóa task "${task.title}"?`, "destructive");
 
@@ -50,9 +51,17 @@ export const TaskItem = ({ task, onDelete, onUpdate, onAddMember, onRemoveMember
     completed: "Hoàn thành",
   };
 
+  // Modify click handler to call onSelect if provided
+  const handleCardClick = () => {
+    setIsDetailOpen(true);
+    if (onSelect) {
+      onSelect(task.id);
+    }
+  };
+
   return (
     <>
-      <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => setIsDetailOpen(true)}>
+      <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={handleCardClick}>
         <CardHeader className="pb-2">
           <div className="flex justify-between items-start">
             <CardTitle className="text-base">{task.title}</CardTitle>

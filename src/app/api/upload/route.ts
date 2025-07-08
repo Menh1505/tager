@@ -1,53 +1,109 @@
 import fs from "fs";
 import path from "path";
-import { NextApiRequest, NextApiResponse } from "next";
-import formidable from "formidable";
+import { NextResponse } from "next/server";
+import { writeFile } from "fs/promises";
+import { v4 as uuidv4 } from "uuid";
 
-// Đảm bảo folder /uploads tồn tại
+// Đảm bảo thư mục /uploads tồn tại
 const uploadDir = path.join(process.cwd(), "uploads");
 if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir);
 
-export const config = {
-  api: {
-    bodyParser: false,
-  },
-};
+// GET handler for listing all files
+export async function GET(request: Request) {
+  // Check if this is a request for a specific file
+  const { searchParams } = new URL(request.url);
+  const fileId = searchParams.get("fileId");
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  const taskId = req.query.taskId as string;
-  const filePath = path.join(uploadDir, `${taskId}.bin`);
+  // Handle listing all files
+  if (request.url.includes("/api/upload/list") || !fileId) {
+    if (!fs.existsSync(uploadDir)) {
+      return NextResponse.json([]);
+    }
 
-  if (req.method === "HEAD") {
-    if (fs.existsSync(filePath)) return res.status(200).end();
-    else return res.status(404).end();
-  }
-
-  if (req.method === "GET") {
-    if (!fs.existsSync(filePath)) return res.status(404).end("Not found");
-    res.setHeader("Content-Disposition", `attachment; filename="${taskId}.bin"`);
-    const fileStream = fs.createReadStream(filePath);
-    fileStream.pipe(res);
-    return;
-  }
-
-  if (req.method === "DELETE") {
-    if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
-    return res.status(200).end();
-  }
-
-  if (req.method === "POST") {
-    const form = new formidable.IncomingForm({ uploadDir, keepExtensions: true });
-
-    form.parse(req, (err, fields, files) => {
-      if (err) return res.status(500).json({ error: "Upload error" });
-      const uploadedFile = Array.isArray(files.file) ? files.file[0] : files.file;
-      if (!uploadedFile) return res.status(400).json({ error: "No file" });
-
-      // Rename file theo taskId
-      fs.renameSync(uploadedFile.filepath, filePath);
-      return res.status(200).json({ success: true });
+    const files = fs.readdirSync(uploadDir).map((filename) => {
+      const id = filename.split(".")[0]; // Get UUID from filename
+      return { id, name: filename };
     });
-  } else {
-    res.status(405).end("Method Not Allowed");
+
+    return NextResponse.json(files);
+  }
+
+  // Handle downloading a specific file
+  const files = fs.readdirSync(uploadDir);
+  const match = files.find((f) => f.startsWith(fileId));
+
+  if (!match) {
+    return new NextResponse("File not found", { status: 404 });
+  }
+
+  const filePath = path.join(uploadDir, match);
+  const fileBuffer = fs.readFileSync(filePath);
+
+  return new NextResponse(fileBuffer, {
+    headers: {
+      "Content-Disposition": `attachment; filename="${match}"`,
+      "Content-Type": "application/octet-stream",
+    },
+  });
+}
+
+// POST handler for file upload
+export async function POST(request: Request) {
+  try {
+    const formData = await request.formData();
+    const file = formData.get("file") as File;
+
+    if (!file) {
+      return NextResponse.json({ error: "No file provided" }, { status: 400 });
+    }
+
+    const bytes = await file.arrayBuffer();
+    const buffer = Buffer.from(bytes);
+
+    // Generate unique filename
+    const uuid = uuidv4();
+    const ext = path.extname(file.name) || ".bin";
+    const filename = `${uuid}${ext}`;
+    const filePath = path.join(uploadDir, filename);
+
+    // Write file to disk
+    await writeFile(filePath, buffer);
+
+    return NextResponse.json(
+      {
+        success: true,
+        fileId: uuid,
+        filename: file.name,
+      },
+      { status: 201 }
+    );
+  } catch (error) {
+    console.error("Error uploading file:", error);
+    return NextResponse.json({ error: "Upload failed" }, { status: 500 });
+  }
+}
+
+// DELETE handler for file deletion
+export async function DELETE(request: Request) {
+  const { searchParams } = new URL(request.url);
+  const fileId = searchParams.get("fileId");
+
+  if (!fileId) {
+    return NextResponse.json({ error: "Missing fileId" }, { status: 400 });
+  }
+
+  const files = fs.readdirSync(uploadDir);
+  const match = files.find((f) => f.startsWith(fileId));
+
+  if (!match) {
+    return NextResponse.json({ error: "File not found" }, { status: 404 });
+  }
+
+  try {
+    fs.unlinkSync(path.join(uploadDir, match));
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    console.log(error);
+    return NextResponse.json({ error: "Failed to delete file" }, { status: 500 });
   }
 }
