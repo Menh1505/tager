@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useWorkspaceId } from "@/hooks/use-workspace-id";
 import { Button } from "@/components/ui/button";
-import { PlusIcon, SearchIcon } from "lucide-react";
+import { ArrowLeftIcon, PlusIcon, SearchIcon } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { TaskItem } from "./taskItem";
@@ -11,6 +11,7 @@ import { CreateTaskModal } from "./createTaskModal";
 import { Badge } from "@/components/ui/badge";
 import { v4 as uuidv4 } from "uuid";
 import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 
 export interface Task {
   id: string;
@@ -32,6 +33,7 @@ export const users = [
 ];
 
 export const TaskList = () => {
+  const router = useRouter();
   const workspaceId = useWorkspaceId();
   const [searchQuery, setSearchQuery] = useState("");
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
@@ -157,6 +159,10 @@ export const TaskList = () => {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
+        <Button size="sm" variant="secondary" onClick={() => router.push(`/`)}>
+          <ArrowLeftIcon className="size-4 mr-2" />
+          Back
+        </Button>
         <h2 className="text-2xl font-bold">Danh sách Tasks</h2>
         <Button onClick={() => setIsCreateModalOpen(true)} className="flex items-center gap-2">
           <PlusIcon className="h-4 w-4" />
