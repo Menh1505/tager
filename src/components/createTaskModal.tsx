@@ -6,34 +6,37 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { useTasks } from "../hooks/use-tasks";
-import { useCurrent } from "@/features/auth/api/use-current";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 interface CreateTaskModalProps {
   isOpen: boolean;
   onClose: () => void;
   workspaceId: string;
+  onAddTask: (taskData: {
+    workspaceId: string;
+    title: string;
+    description: string;
+    status: "todo" | "in-progress" | "completed";
+    assignees: string[];
+    createdBy: string;
+  }) => void;
 }
 
-export const CreateTaskModal = ({ isOpen, onClose, workspaceId }: CreateTaskModalProps) => {
-  const { data: currentUser } = useCurrent();
-  const { addTask } = useTasks(workspaceId);
-
+export const CreateTaskModal = ({ isOpen, onClose, workspaceId, onAddTask }: CreateTaskModalProps) => {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [status, setStatus] = useState<"todo" | "in-progress" | "completed">("todo");
 
   const handleCreateTask = () => {
-    if (!title.trim() || !currentUser) return;
+    if (!title.trim()) return;
 
-    addTask({
+    onAddTask({
       workspaceId,
       title,
       description,
       status,
       assignees: [], // Start with no assignees
-      createdBy: currentUser.$id,
+      createdBy: "user-1", // Mock current user
     });
 
     // Reset form và đóng modal

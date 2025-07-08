@@ -1,9 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { Task, users } from "@/mock-data/tasks";
+import { useEffect, useRef, useState } from "react";
+import { Task, users } from "@/components/taskList";
 import { ResponsiveModal } from "@/components/responsive-modal";
-import { useTasks } from "../hooks/use-tasks";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -18,14 +17,22 @@ interface TaskDetailModalProps {
   isOpen: boolean;
   onClose: () => void;
   task: Task;
+  onUpdate: (taskId: string, updatedData: Partial<Task>) => void;
+  onAddMember: (taskId: string, userId: string) => void;
+  onRemoveMember: (taskId: string, userId: string) => void;
 }
 
-export const TaskDetailModal = ({ isOpen, onClose, task }: TaskDetailModalProps) => {
-  const { updateTask, addMemberToTask, removeMemberFromTask } = useTasks(task.workspaceId);
-
+export const TaskDetailModal = ({ isOpen, onClose, task, onUpdate, onAddMember, onRemoveMember }: TaskDetailModalProps) => {
   const [title, setTitle] = useState(task.title);
   const [description, setDescription] = useState(task.description);
   const [status, setStatus] = useState(task.status);
+
+  // Reset form values when task changes
+  useEffect(() => {
+    setTitle(task.title);
+    setDescription(task.description);
+    setStatus(task.status);
+  }, [task]);
 
   // Lọc users đã được gán và chưa được gán
   const assignedUsers = users.filter((user) => task.assignees.includes(user.id));
@@ -54,10 +61,10 @@ export const TaskDetailModal = ({ isOpen, onClose, task }: TaskDetailModalProps)
     });
 
     if (res.ok) {
-      toast("Tải file lên thành công");
+      toast.success("Tải file lên thành công");
       setFileExists(true);
     } else {
-      toast("Lỗi khi tải file");
+      toast.error("Lỗi khi tải file");
     }
   };
 
@@ -71,30 +78,21 @@ export const TaskDetailModal = ({ isOpen, onClose, task }: TaskDetailModalProps)
     });
 
     if (res.ok) {
-      toast("Xóa file thành công");
+      toast.success("Xóa file thành công");
       setFileExists(false);
     } else {
-      toast("Xóa file thất bại");
+      toast.error("Xóa file thất bại");
     }
   };
+
   // Xử lý cập nhật task
   const handleUpdate = () => {
-    updateTask(task.id, {
+    onUpdate(task.id, {
       title,
       description,
       status,
     });
     onClose();
-  };
-
-  // Xử lý thêm member vào task
-  const handleAddMember = (userId: string) => {
-    addMemberToTask(task.id, userId);
-  };
-
-  // Xử lý xóa member khỏi task
-  const handleRemoveMember = (userId: string) => {
-    removeMemberFromTask(task.id, userId);
   };
 
   const formattedCreatedAt = format(new Date(task.createdAt), "dd/MM/yyyy HH:mm");
@@ -111,17 +109,17 @@ export const TaskDetailModal = ({ isOpen, onClose, task }: TaskDetailModalProps)
         <div className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="title">Tiêu đề</Label>
-            <Input id="title" value={title} onChange={(e) => setTitle(e.target.value)} disabled={false} />
+            <Input id="title" value={title} onChange={(e) => setTitle(e.target.value)} />
           </div>
 
           <div className="space-y-2">
             <Label htmlFor="description">Mô tả</Label>
-            <Textarea id="description" value={description} onChange={(e) => setDescription(e.target.value)} rows={5} disabled={false} />
+            <Textarea id="description" value={description} onChange={(e) => setDescription(e.target.value)} rows={5} />
           </div>
 
           <div className="space-y-2">
             <Label htmlFor="status">Trạng thái</Label>
-            <Select value={status} onValueChange={setStatus} disabled={false}>
+            <Select value={status} onValueChange={(value) => setStatus(value as "todo" | "in-progress" | "completed")}>
               <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>
@@ -172,7 +170,7 @@ export const TaskDetailModal = ({ isOpen, onClose, task }: TaskDetailModalProps)
                       </div>
                     </div>
 
-                    <Button variant="ghost" size="icon" onClick={() => handleRemoveMember(user.id)}>
+                    <Button variant="ghost" size="icon" onClick={() => onRemoveMember(task.id, user.id)}>
                       <X className="h-4 w-4" />
                     </Button>
                   </div>
@@ -194,7 +192,7 @@ export const TaskDetailModal = ({ isOpen, onClose, task }: TaskDetailModalProps)
                             <p className="text-xs text-muted-foreground">{user.email}</p>
                           </div>
                         </div>
-                        <Button variant="ghost" size="icon" onClick={() => handleAddMember(user.id)}>
+                        <Button variant="ghost" size="icon" onClick={() => onAddMember(task.id, user.id)}>
                           <PlusCircle className="h-4 w-4" />
                         </Button>
                       </div>
@@ -232,7 +230,7 @@ export const TaskDetailModal = ({ isOpen, onClose, task }: TaskDetailModalProps)
             <Button variant="outline" onClick={onClose}>
               Hủy
             </Button>
-            {<Button onClick={handleUpdate}>Cập nhật</Button>}
+            <Button onClick={handleUpdate}>Cập nhật</Button>
           </div>
         </div>
       </div>

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Task, users } from "@/mock-data/tasks";
+import { Task, users } from "@/components/taskList";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -9,17 +9,19 @@ import { MoreVertical, Calendar, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { TaskDetailModal } from "./taskDetailModal";
-import { useTasks } from "../hooks/use-tasks";
 import { useConfirm } from "@/hooks/use-confirm";
 import { format } from "date-fns";
 
 interface TaskItemProps {
   task: Task;
+  onDelete: (taskId: string) => void;
+  onUpdate: (taskId: string, updatedData: Partial<Task>) => void;
+  onAddMember: (taskId: string, userId: string) => void;
+  onRemoveMember: (taskId: string, userId: string) => void;
 }
 
-export const TaskItem = ({ task }: TaskItemProps) => {
+export const TaskItem = ({ task, onDelete, onUpdate, onAddMember, onRemoveMember }: TaskItemProps) => {
   const [isDetailOpen, setIsDetailOpen] = useState(false);
-  const { deleteTask } = useTasks(task.workspaceId);
   const [ConfirmDialog, confirm] = useConfirm("Xóa task", `Bạn có chắc chắn muốn xóa task "${task.title}"?`, "destructive");
 
   // Tìm thông tin assignees
@@ -32,7 +34,7 @@ export const TaskItem = ({ task }: TaskItemProps) => {
   const handleDelete = async () => {
     const ok = await confirm();
     if (ok) {
-      deleteTask(task.id);
+      onDelete(task.id);
     }
   };
 
@@ -106,7 +108,14 @@ export const TaskItem = ({ task }: TaskItemProps) => {
         </CardFooter>
       </Card>
 
-      <TaskDetailModal isOpen={isDetailOpen} onClose={() => setIsDetailOpen(false)} task={task} />
+      <TaskDetailModal
+        isOpen={isDetailOpen}
+        onClose={() => setIsDetailOpen(false)}
+        task={task}
+        onUpdate={onUpdate}
+        onAddMember={onAddMember}
+        onRemoveMember={onRemoveMember}
+      />
 
       <ConfirmDialog />
     </>
